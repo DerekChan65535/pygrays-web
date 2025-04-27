@@ -99,7 +99,7 @@ function Inventory(props: InventoryProps): React.JSX.Element {
                 <CForm onSubmit={handleSubmit}>
                   <CRow className="mb-3">
                     <CCol md={12}>
-                      <CFormLabel htmlFor="txtFilesInput">TXT Files (Multiple)</CFormLabel>
+                      <CFormLabel htmlFor="txtFilesInput">Multiple TXT Files</CFormLabel>
                       <CFormInput
                           type="file"
                           id="txtFilesInput"
@@ -121,7 +121,7 @@ function Inventory(props: InventoryProps): React.JSX.Element {
                   </CRow>
                   <CRow className="mb-3">
                     <CCol md={12}>
-                      <CFormLabel htmlFor="csvFileInput">CSV File (Single)</CFormLabel>
+                      <CFormLabel htmlFor="csvFileInput">SOH File (in CSV format)</CFormLabel>
                       <CFormInput
                           type="file"
                           id="csvFileInput"
@@ -130,7 +130,7 @@ function Inventory(props: InventoryProps): React.JSX.Element {
                       />
                       {csvFile && (
                           <div className="selected-files mt-2">
-                            <p className="mb-1">Selected CSV file:</p>
+                            <p className="mb-1">Selected SOH file:</p>
                             <ul className="file-list">
                               <li>{csvFile.name}</li>
                             </ul>
