@@ -2,8 +2,36 @@
 import axios from "axios";
 
 export default class ApiClient {
-    // private static baseUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
-    private static baseUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+    /**
+     * Dynamically calculates the base URL based on the current page URL
+     * Returns the hostname from the current URL with port 8000
+     */
+    private static getBaseUrl(): string {
+        // Use environment variable if available (for development)
+        if (process.env.REACT_APP_API_URL) {
+            return process.env.REACT_APP_API_URL;
+        }
+        
+        // In browser environment
+        if (typeof window !== 'undefined') {
+            const location = window.location;
+            const protocol = location.protocol;
+            const hostname = location.hostname;
+            
+            // Always use port 8000 for the API
+            return `${protocol}//${hostname}:8000`;
+        }
+        
+        // Fallback to localhost if not in browser
+        return "http://127.0.0.1:8000";
+    }
+    
+    /**
+     * Get the base URL for API requests
+     */
+    private static get baseUrl(): string {
+        return this.getBaseUrl();
+    }
     
     /**
      * Creates FormData from the provided files
