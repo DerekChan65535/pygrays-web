@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import Inventory from "./pages/Inventory";
+import Home from "./pages/home/Home";
+import Inventory from "./pages/inventory/Inventory";
 import Layout from "./Layout";
 
 function App() {
