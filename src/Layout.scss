@@ -1,0 +1,44 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
+}
+
+.main {
+  flex: 1;
+  padding: 1rem;
+}
+
+.sidebar {
+  width: 100%;
+  background-color: #f3f4f6;
+  padding: 1rem;
+
+  @media (min-width: 768px) {
+    width: 15rem;
+  }
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  margin: 0.5rem 0;
+}
+
+.nav-link {
+  display: block;
+  color: #000;
+  text-decoration: none;
+
+  &.active {
+    color: #3b82f6;
+  }
+}
