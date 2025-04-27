@@ -16,22 +16,22 @@ import ApiClient from "../../clients/ApiClient";
 interface InventoryProps {}
 
 function Inventory(props: InventoryProps): React.JSX.Element {
-  const [primaryFiles, setPrimaryFiles] = useState<FileList | null>(null);
-  const [secondaryFiles, setSecondaryFiles] = useState<FileList | null>(null);
+  const [txtFiles, setTxtFiles] = useState<FileList | null>(null);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
-  const handlePrimaryFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTxtFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setPrimaryFiles(e.target.files);
+      setTxtFiles(e.target.files);
       setError(null);
     }
   };
   
-  const handleSecondaryFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setSecondaryFiles(e.target.files);
+  const handleCsvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setCsvFile(e.target.files[0]);
       setError(null);
     }
   };
@@ -41,41 +41,31 @@ function Inventory(props: InventoryProps): React.JSX.Element {
     setError(null);
     setSuccessMessage(null);
     
-    if (!primaryFiles || primaryFiles.length === 0) {
-      setError("Please select at least one primary document");
+    if (!txtFiles || txtFiles.length === 0) {
+      setError("Please select at least one TXT file");
       return;
     }
     
-    // Create FormData to process files
-    const formData = new FormData();
-    
-    if (primaryFiles) {
-      for (let i = 0; i < primaryFiles.length; i++) {
-        formData.append('primaryFiles', primaryFiles[i]);
-      }
-    }
-    
-    if (secondaryFiles) {
-      for (let i = 0; i < secondaryFiles.length; i++) {
-        formData.append('secondaryFiles', secondaryFiles[i]);
-      }
+    if (!csvFile) {
+      setError("Please select a CSV file");
+      return;
     }
     
     try {
       setIsSubmitting(true);
-      const response = await ApiClient.sendFiles(formData);
+      const response = await ApiClient.uploadInventoryFiles(txtFiles, csvFile);
       
       if (response.success) {
         setSuccessMessage("Files uploaded successfully!");
         // Reset form after successful submission
-        setPrimaryFiles(null);
-        setSecondaryFiles(null);
+        setTxtFiles(null);
+        setCsvFile(null);
         
         // Reset file input fields
-        const primaryInput = document.getElementById('primaryFileInput') as HTMLInputElement;
-        const secondaryInput = document.getElementById('secondaryFileInput') as HTMLInputElement;
-        if (primaryInput) primaryInput.value = '';
-        if (secondaryInput) secondaryInput.value = '';
+        const txtFilesInput = document.getElementById('txtFilesInput') as HTMLInputElement;
+        const csvFileInput = document.getElementById('csvFileInput') as HTMLInputElement;
+        if (txtFilesInput) txtFilesInput.value = '';
+        if (csvFileInput) csvFileInput.value = '';
       } else {
         setError(response.error || "An error occurred while uploading files");
       }
@@ -87,8 +77,6 @@ function Inventory(props: InventoryProps): React.JSX.Element {
     }
   };
   
-  // @ts-ignore
-  // @ts-ignore
   return (
     <>
       <CContainer className="inventory-container">
@@ -111,18 +99,19 @@ function Inventory(props: InventoryProps): React.JSX.Element {
                 <CForm onSubmit={handleSubmit}>
                   <CRow className="mb-3">
                     <CCol md={12}>
-                      <CFormLabel htmlFor="primaryFileInput">Primary Documents</CFormLabel>
+                      <CFormLabel htmlFor="txtFilesInput">TXT Files (Multiple)</CFormLabel>
                       <CFormInput
                           type="file"
-                          id="primaryFileInput"
+                          id="txtFilesInput"
                           multiple
-                          onChange={handlePrimaryFileChange}
+                          accept=".txt"
+                          onChange={handleTxtFileChange}
                       />
-                      {primaryFiles && (
+                      {txtFiles && (
                           <div className="selected-files mt-2">
-                            <p className="mb-1">Selected files: {primaryFiles.length}</p>
+                            <p className="mb-1">Selected TXT files: {txtFiles.length}</p>
                             <ul className="file-list">
-                              {Array.from(primaryFiles).map((file, index) => (
+                              {Array.from(txtFiles).map((file, index) => (
                                   <li key={index}>{file.name}</li>
                               ))}
                             </ul>
@@ -132,20 +121,18 @@ function Inventory(props: InventoryProps): React.JSX.Element {
                   </CRow>
                   <CRow className="mb-3">
                     <CCol md={12}>
-                      <CFormLabel htmlFor="secondaryFileInput">Secondary Documents</CFormLabel>
+                      <CFormLabel htmlFor="csvFileInput">CSV File (Single)</CFormLabel>
                       <CFormInput
                           type="file"
-                          id="secondaryFileInput"
-                          multiple
-                          onChange={handleSecondaryFileChange}
+                          id="csvFileInput"
+                          accept=".csv"
+                          onChange={handleCsvFileChange}
                       />
-                      {secondaryFiles && (
+                      {csvFile && (
                           <div className="selected-files mt-2">
-                            <p className="mb-1">Selected files: {secondaryFiles.length}</p>
+                            <p className="mb-1">Selected CSV file:</p>
                             <ul className="file-list">
-                              {Array.from(secondaryFiles).map((file, index) => (
-                                  <li key={index}>{file.name}</li>
-                              ))}
+                              <li>{csvFile.name}</li>
                             </ul>
                           </div>
                       )}
