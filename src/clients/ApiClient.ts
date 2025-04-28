@@ -63,14 +63,68 @@ export default class ApiClient {
      */
     static async sendInventoryFiles(formData: FormData): Promise<any> {
         try {
-            const response = await axios.post(`${this.baseUrl}/inventory/uploadfiles`, formData, {
+            const response = await axios.post(`${this.baseUrl}/inventory/uploadfiles/`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
-                }
+                },
+                withCredentials: false,
+                responseType: 'blob' // Handle binary data for file download
             });
+            
+            // If response status is 200, handle file download
+            if (response.status === 200) {
+                // Create a URL for the blob
+                const blob = new Blob([response.data], { 
+                    type: response.headers['content-type'] || 'application/octet-stream' 
+                });
+                const url = window.URL.createObjectURL(blob);
+                
+                // Get filename from Content-Disposition header or use default
+                let filename = 'downloaded_file';
+                const contentDisposition = response.headers['content-disposition'];
+                console.log('Content-Disposition header:', contentDisposition);
+                
+                if (contentDisposition) {
+                    // First, try to match "filename="
+                    const filenameRegex = /filename=([^;]+)/i;
+                    const matches = contentDisposition.match(filenameRegex);
+                    
+                    if (matches && matches[1]) {
+                        // Remove quotes if present
+                        filename = matches[1].replace(/["']/g, '').trim();
+                        console.log('Extracted filename:', filename);
+                    } else {
+                        // If the first regex doesn't work, try a more permissive one
+                        const alternativeMatch = contentDisposition.match(/filename\s*=\s*(?:(['"])([^'"]+)\1|([^;\s]+))/i);
+                        if (alternativeMatch) {
+                            filename = (alternativeMatch[2] || alternativeMatch[3]).trim();
+                            console.log('Extracted filename (alternative):', filename);
+                        }
+                    }
+                }
+                
+                // Create a temporary anchor element to trigger download
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clean up
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                return { 
+                    success: true, 
+                    data: { message: 'File downloaded successfully', filename }
+                };
+            }
+            
+            // For non-file responses
             return { success: true, data: response.data };
         } catch (error) {
             if (axios.isAxiosError(error)) {
+                console.error('Axios error details:', error.message, error.response);
                 return { 
                     success: false, 
                     error: error.response?.data?.message || 'Error uploading files' 
