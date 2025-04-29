@@ -63,17 +63,31 @@ export default class ApiClient {
      */
     static async sendInventoryFiles(formData: FormData): Promise<any> {
         try {
+            // Make the request with blob responseType for handling file downloads
             const response = await axios.post(`${this.baseUrl}/inventory/uploadfiles/`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 },
                 withCredentials: false,
-                responseType: 'blob' // Handle binary data for file download
+                responseType: 'blob' // Default to blob for file downloads
             });
             
-            // If response status is 200, handle file download
-            if (response.status === 200) {
-                // Create a URL for the blob
+            // If it's a JSON response, check for errors
+            if (response.data && typeof response.data === 'object') {
+                // Check if this is an error response with the expected format
+                if (response.data.is_success === false && response.data.errors) {
+                    return {
+                        success: false,
+                        errorMessages: response.data.errors,
+                        error: Array.isArray(response.data.errors) 
+                            ? response.data.errors.join(', ') 
+                            : 'Error processing files'
+                    };
+                }
+            }
+            
+            // If response status is 200 and it's a blob, handle file download
+            if (response.status === 200 && response.data instanceof Blob) {
                 const blob = new Blob([response.data], { 
                     type: response.headers['content-type'] || 'application/octet-stream' 
                 });
@@ -120,11 +134,38 @@ export default class ApiClient {
                 };
             }
             
-            // For non-file responses
+            // For other successful responses
             return { success: true, data: response.data };
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 console.error('Axios error details:', error.message, error.response);
+                
+                // Check if status is not 200 and content-type is JSON
+                const contentType = error.response?.headers?.['content-type'] || '';
+                const isJsonResponse = contentType.includes('application/json');
+                
+                if (error.response?.data && isJsonResponse) {
+                    try {
+                        // If response is a blob, convert it to JSON
+                        if (error.response.data instanceof Blob) {
+                            const text = await error.response.data.text();
+                            const jsonData = JSON.parse(text);
+                            
+                            if (jsonData.is_success === false && jsonData.errors) {
+                                return {
+                                    success: false,
+                                    errorMessages: jsonData.errors,
+                                    error: Array.isArray(jsonData.errors) 
+                                        ? jsonData.errors.join(', ') 
+                                        : 'Error processing files'
+                                };
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error parsing error response:', e);
+                    }
+                }
+                
                 return { 
                     success: false, 
                     error: error.response?.data?.message || 'Error uploading files' 

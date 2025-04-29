@@ -20,12 +20,14 @@ function Inventory(props: InventoryProps): React.JSX.Element {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorMessages, setErrorMessages] = useState<string[] | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
   const handleTxtFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setTxtFiles(e.target.files);
       setError(null);
+      setErrorMessages(null);
     }
   };
   
@@ -33,12 +35,14 @@ function Inventory(props: InventoryProps): React.JSX.Element {
     if (e.target.files && e.target.files.length > 0) {
       setCsvFile(e.target.files[0]);
       setError(null);
+      setErrorMessages(null);
     }
   };
   
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    setErrorMessages(null);
     setSuccessMessage(null);
     
     if (!txtFiles || txtFiles.length === 0) {
@@ -67,6 +71,10 @@ function Inventory(props: InventoryProps): React.JSX.Element {
         if (txtFilesInput) txtFilesInput.value = '';
         if (csvFileInput) csvFileInput.value = '';
       } else {
+        // Handle detailed error messages if available
+        if (response.errorMessages && Array.isArray(response.errorMessages)) {
+          setErrorMessages(response.errorMessages);
+        }
         setError(response.error || "An error occurred while uploading files");
       }
     } catch (err) {
@@ -85,15 +93,27 @@ function Inventory(props: InventoryProps): React.JSX.Element {
             <CCard className="mb-4">
               <CCardBody>
                 {error && (
-                    <CAlert color="danger" dismissible onClose={() => setError(null)}>
-                      {error}
-                    </CAlert>
+                  <CAlert color="danger" dismissible onClose={() => {
+                    setError(null);
+                    setErrorMessages(null);
+                  }}>
+                    <h4 className="error-heading">{error}</h4>
+                    {errorMessages && errorMessages.length > 0 && (
+                      <div className="error-details">
+                        <ul>
+                          {errorMessages.map((message, index) => (
+                            <li key={index}>{message}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </CAlert>
                 )}
 
                 {successMessage && (
-                    <CAlert color="success" dismissible onClose={() => setSuccessMessage(null)}>
-                      {successMessage}
-                    </CAlert>
+                  <CAlert color="success" dismissible onClose={() => setSuccessMessage(null)}>
+                    {successMessage}
+                  </CAlert>
                 )}
 
                 <CForm onSubmit={handleSubmit}>
@@ -101,21 +121,21 @@ function Inventory(props: InventoryProps): React.JSX.Element {
                     <CCol md={12}>
                       <CFormLabel htmlFor="txtFilesInput">Multiple TXT Files</CFormLabel>
                       <CFormInput
-                          type="file"
-                          id="txtFilesInput"
-                          multiple
-                          accept=".txt"
-                          onChange={handleTxtFileChange}
+                        type="file"
+                        id="txtFilesInput"
+                        multiple
+                        accept=".txt"
+                        onChange={handleTxtFileChange}
                       />
                       {txtFiles && (
-                          <div className="selected-files mt-2">
-                            <p className="mb-1">Selected TXT files: {txtFiles.length}</p>
-                            <ul className="file-list">
-                              {Array.from(txtFiles).map((file, index) => (
-                                  <li key={index}>{file.name}</li>
-                              ))}
-                            </ul>
-                          </div>
+                        <div className="selected-files mt-2">
+                          <p className="mb-1">Selected TXT files: {txtFiles.length}</p>
+                          <ul className="file-list">
+                            {Array.from(txtFiles).map((file, index) => (
+                              <li key={index}>{file.name}</li>
+                            ))}
+                          </ul>
+                        </div>
                       )}
                     </CCol>
                   </CRow>
@@ -123,18 +143,18 @@ function Inventory(props: InventoryProps): React.JSX.Element {
                     <CCol md={12}>
                       <CFormLabel htmlFor="csvFileInput">SOH File (in CSV format)</CFormLabel>
                       <CFormInput
-                          type="file"
-                          id="csvFileInput"
-                          accept=".csv"
-                          onChange={handleCsvFileChange}
+                        type="file"
+                        id="csvFileInput"
+                        accept=".csv"
+                        onChange={handleCsvFileChange}
                       />
                       {csvFile && (
-                          <div className="selected-files mt-2">
-                            <p className="mb-1">Selected SOH file:</p>
-                            <ul className="file-list">
-                              <li>{csvFile.name}</li>
-                            </ul>
-                          </div>
+                        <div className="selected-files mt-2">
+                          <p className="mb-1">Selected SOH file:</p>
+                          <ul className="file-list">
+                            <li>{csvFile.name}</li>
+                          </ul>
+                        </div>
                       )}
                     </CCol>
                   </CRow>
