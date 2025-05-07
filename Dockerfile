@@ -40,21 +40,21 @@ COPY --from=builder /app/build .
 RUN rm /etc/nginx/conf.d/default.conf
 
 # Create custom Nginx configuration
-RUN echo "server { \n\
-    listen 80; \n\
-    server_name localhost; \n\
+RUN printf "server {\n\
+    listen 80;\n\
+    server_name localhost;\n\
     \n\
-    root /usr/share/nginx/html; \n\
-    index index.html index.htm; \n\
+    root /usr/share/nginx/html;\n\
+    index index.html index.htm;\n\
     \n\
-    location / { \n\
-        try_files \$uri \$uri/ /index.html; \n\
-    } \n\
+    location / {\n\
+        try_files \$uri \$uri/ /index.html;\n\
+    }\n\
     \n\
-    location ~* \\.(?:css|js|jpg|jpeg|gif|png|ico|webp|svg)\$ { \n\
-        expires 1y; \n\
-        add_header Cache-Control \"public\"; \n\
-    } \n\
+    location ~* \\.(?:css|js|jpg|jpeg|gif|png|ico|webp|svg)$ {\n\
+        expires 1y;\n\
+        add_header Cache-Control \"public\";\n\
+    }\n\
 }" > /etc/nginx/conf.d/default.conf
 
 # Expose port 80 to the outside world
