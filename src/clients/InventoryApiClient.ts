@@ -1,7 +1,7 @@
 
 import axios from "axios";
 
-export default class ApiClient {
+export default class InventoryApiClient {
     /**
      * Dynamically calculates the base URL based on the current page URL
      * Returns the hostname from the current URL with port 8000

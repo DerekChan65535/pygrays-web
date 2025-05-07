@@ -11,7 +11,7 @@ import {
   CAlert
 } from "@coreui/react-pro";
 import "./Inventory.scss";
-import ApiClient from "../../clients/ApiClient";
+import InventoryApiClient from "../../clients/InventoryApiClient";
 
 interface InventoryProps {}
 
@@ -57,7 +57,7 @@ function Inventory(props: InventoryProps): React.JSX.Element {
     
     try {
       setIsSubmitting(true);
-      const response = await ApiClient.uploadInventoryFiles(txtFiles, csvFile);
+      const response = await InventoryApiClient.uploadInventoryFiles(txtFiles, csvFile);
       
       if (response.success) {
         setSuccessMessage("Files uploaded successfully!");
