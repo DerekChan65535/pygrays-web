@@ -1,0 +1,44 @@
+.aging-report-container {
+  padding-top: 1.5rem;
+  
+  .selected-files {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    
+    .file-list {
+      max-height: 150px;
+      overflow-y: auto;
+      margin-bottom: 0;
+      padding-left: 1.5rem;
+      
+      li {
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+        word-break: break-all;
+      }
+    }
+  }
+  
+  .error-heading {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .error-details {
+    margin-top: 0.5rem;
+    
+    ul {
+      margin-bottom: 0;
+      padding-left: 1.5rem;
+      
+      li {
+        font-size: 0.875rem;
+      }
+    }
+  }
+  
+  .btn-primary {
+    min-width: 120px;
+  }
+}
