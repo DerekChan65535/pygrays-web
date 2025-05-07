@@ -4,6 +4,7 @@ import './Layout.scss';
 const testMenuItems = [
     { href: "/", title: "Home" },
     { href: "/inventory", title: "Inventory" },
+    { href: "/aging-report", title: "Aging Report" },
 ];
 
 const Layout = () => {

@@ -35,10 +35,9 @@
 
 .nav-link {
   display: block;
-  color: #000;
   text-decoration: none;
 
   &.active {
-    color: #3b82f6;
+    font-weight: 600;
   }
 }
