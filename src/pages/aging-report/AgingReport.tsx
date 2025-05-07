@@ -15,7 +15,7 @@ import AgingReportApiClient from "../../clients/AgingReportApiClient";
 
 interface AgingReportProps {}
 
-export default function AgingReport(props: AgingReportProps): React.JSX.Element {
+function AgingReport(props: AgingReportProps): React.JSX.Element {
   const [dataFiles, setDataFiles] = useState<FileList | null>(null);
   const [mappingFile, setMappingFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -179,3 +179,4 @@ export default function AgingReport(props: AgingReportProps): React.JSX.Element 
   );
 }
 
+export default AgingReport;
