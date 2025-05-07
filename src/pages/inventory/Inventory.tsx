@@ -9,7 +9,7 @@ import {
   CRow,
   CContainer,
   CAlert
-} from "@coreui/react";
+} from "@coreui/react-pro";
 import "./Inventory.scss";
 import ApiClient from "../../clients/ApiClient";
 
