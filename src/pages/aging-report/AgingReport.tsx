@@ -1,4 +1,4 @@
-import React, { useState, FormEvent } from "react";
+import React, { useState, FormEvent, useEffect } from "react";
 import {
   CCard,
   CCardBody,
@@ -8,7 +8,10 @@ import {
   CFormLabel,
   CRow,
   CContainer,
-  CAlert
+  CAlert,
+  CInputGroup,
+  CInputGroupText,
+  CFormText
 } from "@coreui/react-pro";
 import "./AgingReport.scss";
 import AgingReportApiClient from "../../clients/AgingReportApiClient";
@@ -18,11 +21,19 @@ interface AgingReportProps {}
 function AgingReport(props: AgingReportProps): React.JSX.Element {
   const [dataFiles, setDataFiles] = useState<FileList | null>(null);
   const [mappingFile, setMappingFile] = useState<File | null>(null);
+  const [reportDate, setReportDate] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [errorMessages, setErrorMessages] = useState<string[] | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
+  // Set today's date as default on component mount
+  useEffect(() => {
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    setReportDate(formattedDate);
+  }, []);
+
   const handleDataFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setDataFiles(e.target.files);
@@ -37,6 +48,12 @@ function AgingReport(props: AgingReportProps): React.JSX.Element {
       setError(null);
       setErrorMessages(null);
     }
+  };
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setReportDate(e.target.value);
+    setError(null);
+    setErrorMessages(null);
   };
   
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -57,7 +74,11 @@ function AgingReport(props: AgingReportProps): React.JSX.Element {
     
     try {
       setIsSubmitting(true);
-      const response = await AgingReportApiClient.uploadAgingReportFiles(dataFiles, mappingFile);
+      const response = await AgingReportApiClient.uploadAgingReportFiles(
+        dataFiles, 
+        mappingFile,
+        reportDate // Pass the report date to the API
+      );
       
       if (response.success) {
         setSuccessMessage("Files uploaded successfully!");
@@ -117,6 +138,23 @@ function AgingReport(props: AgingReportProps): React.JSX.Element {
                 )}
 
                 <CForm onSubmit={handleSubmit}>
+                  <CRow className="mb-3">
+                    <CCol md={12}>
+                      <CFormLabel htmlFor="reportDateInput">Report Date</CFormLabel>
+                      <CInputGroup>
+                        <CInputGroupText>
+                          <i className="cil-calendar"></i>
+                        </CInputGroupText>
+                        <CFormInput
+                          type="date"
+                          id="reportDateInput"
+                          value={reportDate}
+                          onChange={handleDateChange}
+                        />
+                      </CInputGroup>
+                      <CFormText>Date to use for calculations (defaults to today if not specified)</CFormText>
+                    </CCol>
+                  </CRow>
                   <CRow className="mb-3">
                     <CCol md={12}>
                       <CFormLabel htmlFor="dataFilesInput">Multiple Data Files (CSV format)</CFormLabel>
