@@ -8,13 +8,15 @@ export default class FileUploadUtils {
      * @param multipleFilesFieldName Field name for multiple files
      * @param singleFile Single file to upload
      * @param singleFileFieldName Field name for single file
-     * @returns FormData object with appended files
+     * @param additionalFields Optional object containing additional form fields
+     * @returns FormData object with appended files and additional fields
      */
     public static createFormData(
         multipleFiles: FileList,
         multipleFilesFieldName: string,
         singleFile: File,
-        singleFileFieldName: string
+        singleFileFieldName: string,
+        additionalFields?: Record<string, string>
     ): FormData {
         const formData = new FormData();
         
@@ -25,6 +27,15 @@ export default class FileUploadUtils {
         
         // Append the single file
         formData.append(singleFileFieldName, singleFile);
+        
+        // Append additional fields if provided
+        if (additionalFields) {
+            Object.entries(additionalFields).forEach(([key, value]) => {
+                if (value !== undefined && value !== null) {
+                    formData.append(key, value);
+                }
+            });
+        }
         
         return formData;
     }

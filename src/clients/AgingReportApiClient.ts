@@ -25,13 +25,9 @@ export default class AgingReportApiClient extends BaseApiClient {
             dataFiles,
             this.DATA_FILES_FIELD,
             mappingFile,
-            this.MAPPING_FILE_FIELD
+            this.MAPPING_FILE_FIELD,
+            reportDate ? { [this.REPORT_DATE_FIELD]: reportDate } : undefined
         );
-        
-        // Add report date to form data if provided
-        if (reportDate) {
-            formData.append(this.REPORT_DATE_FIELD, reportDate);
-        }
         
         return this.sendFormDataRequest(this.UPLOAD_ENDPOINT, formData);
     }
