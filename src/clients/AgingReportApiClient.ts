@@ -11,22 +11,30 @@ export default class AgingReportApiClient extends BaseApiClient {
     private static readonly REPORT_DATE_FIELD = "report_date";
     
     /**
+     * Gets today's date in YYYY-MM-DD format
+     */
+    private static getTodayDate(): string {
+        const today = new Date();
+        return today.toISOString().split('T')[0];
+    }
+    
+    /**
      * Uploads aging report files (multiple data CSV files and single mapping CSV file)
      * @param dataFiles - The data files to upload
      * @param mappingFile - The mapping file to upload
-     * @param reportDate - Optional date to use for report calculations (format YYYY-MM-DD)
+     * @param reportDate - Date to use for report calculations (format YYYY-MM-DD), defaults to today
      */
     static async uploadAgingReportFiles(
         dataFiles: FileList, 
         mappingFile: File, 
-        reportDate?: string
+        reportDate: string = this.getTodayDate()
     ): Promise<any> {
         const formData = FileUploadUtils.createFormData(
             dataFiles,
             this.DATA_FILES_FIELD,
             mappingFile,
             this.MAPPING_FILE_FIELD,
-            reportDate ? { [this.REPORT_DATE_FIELD]: reportDate } : undefined
+            { [this.REPORT_DATE_FIELD]: reportDate }
         );
         
         return this.sendFormDataRequest(this.UPLOAD_ENDPOINT, formData);
