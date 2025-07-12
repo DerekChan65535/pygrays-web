@@ -11,13 +11,13 @@ export default class InventoryApiClient extends BaseApiClient {
     private static readonly CSV_FILE_FIELD = "csv_files";
     
     /**
-     * Uploads inventory files (multiple TXT files and single CSV file)
+     * Uploads inventory files (multiple TXT files and multiple CSV files)
      */
-    static async uploadInventoryFiles(txtFiles: FileList, csvFile: File): Promise<any> {
+    static async uploadInventoryFiles(txtFiles: FileList, csvFiles: FileList): Promise<any> {
         const formData = FileUploadUtils.createFormData(
             txtFiles,
             this.TXT_FILES_FIELD,
-            csvFile,
+            csvFiles,
             this.CSV_FILE_FIELD
         );
         

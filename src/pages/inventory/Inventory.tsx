@@ -17,7 +17,7 @@ interface InventoryProps {}
 
 function Inventory(props: InventoryProps): React.JSX.Element {
   const [txtFiles, setTxtFiles] = useState<FileList | null>(null);
-  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [csvFiles, setCsvFiles] = useState<FileList | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [errorMessages, setErrorMessages] = useState<string[] | null>(null);
@@ -32,8 +32,23 @@ function Inventory(props: InventoryProps): React.JSX.Element {
   };
   
   const handleCsvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setCsvFile(e.target.files[0]);
+    if (e.target.files) {
+      // Validate SOH filename pattern
+      const invalidFiles = [];
+      for (let i = 0; i < e.target.files.length; i++) {
+        const file = e.target.files[i];
+        const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+        if (nameWithoutExt.length < 6 || !/\d{6}$/.test(nameWithoutExt)) {
+          invalidFiles.push(file.name);
+        }
+      }
+      
+      if (invalidFiles.length > 0) {
+        setError(`Invalid SOH filename(s) - must end with DDMMYY pattern: ${invalidFiles.join(', ')}`);
+        return;
+      }
+      
+      setCsvFiles(e.target.files);
       setError(null);
       setErrorMessages(null);
     }
@@ -50,20 +65,20 @@ function Inventory(props: InventoryProps): React.JSX.Element {
       return;
     }
     
-    if (!csvFile) {
-      setError("Please select a CSV file");
+    if (!csvFiles || csvFiles.length === 0) {
+      setError("Please select at least one SOH CSV file");
       return;
     }
     
     try {
       setIsSubmitting(true);
-      const response = await InventoryApiClient.uploadInventoryFiles(txtFiles, csvFile);
+      const response = await InventoryApiClient.uploadInventoryFiles(txtFiles, csvFiles);
       
       if (response.success) {
         setSuccessMessage("Files uploaded successfully!");
         // Reset form after successful submission
         setTxtFiles(null);
-        setCsvFile(null);
+        setCsvFiles(null);
         
         // Reset file input fields
         const txtFilesInput = document.getElementById('txtFilesInput') as HTMLInputElement;
@@ -141,18 +156,21 @@ function Inventory(props: InventoryProps): React.JSX.Element {
                   </CRow>
                   <CRow className="mb-3">
                     <CCol md={12}>
-                      <CFormLabel htmlFor="csvFileInput">SOH File (in CSV format)</CFormLabel>
+                      <CFormLabel htmlFor="csvFileInput">SOH Files (CSV format, filenames must end with DDMMYY)</CFormLabel>
                       <CFormInput
                         type="file"
                         id="csvFileInput"
+                        multiple
                         accept=".csv"
                         onChange={handleCsvFileChange}
                       />
-                      {csvFile && (
+                      {csvFiles && (
                         <div className="selected-files mt-2">
-                          <p className="mb-1">Selected SOH file:</p>
+                          <p className="mb-1">Selected SOH files: {csvFiles.length}</p>
                           <ul className="file-list">
-                            <li>{csvFile.name}</li>
+                            {Array.from(csvFiles).map((file, index) => (
+                              <li key={index}>{file.name}</li>
+                            ))}
                           </ul>
                         </div>
                       )}

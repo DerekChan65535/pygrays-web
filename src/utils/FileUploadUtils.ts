@@ -14,7 +14,7 @@ export default class FileUploadUtils {
     public static createFormData(
         multipleFiles: FileList,
         multipleFilesFieldName: string,
-        singleFile: File,
+        singleFile: File | FileList,
         singleFileFieldName: string,
         additionalFields?: Record<string, string>
     ): FormData {
@@ -25,8 +25,14 @@ export default class FileUploadUtils {
             formData.append(multipleFilesFieldName, multipleFiles[i]);
         }
         
-        // Append the single file
-        formData.append(singleFileFieldName, singleFile);
+        // Append the single file or multiple files
+        if (singleFile instanceof File) {
+            formData.append(singleFileFieldName, singleFile);
+        } else if (singleFile instanceof FileList) {
+            for (let i = 0; i < singleFile.length; i++) {
+                formData.append(singleFileFieldName, singleFile[i]);
+            }
+        }
         
         // Append additional fields if provided
         if (additionalFields) {
