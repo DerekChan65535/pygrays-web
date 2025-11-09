@@ -3,7 +3,7 @@ import FileUploadUtils from "../utils/FileUploadUtils";
 
 export default class AgingReportApiClient extends BaseApiClient {
     // API endpoint for aging report uploads
-    private static readonly UPLOAD_ENDPOINT = "/aging-reports/process/";
+    private static readonly UPLOAD_ENDPOINT = "/aging-reports/process";
     
     // Field names for form data
     private static readonly DATA_FILES_FIELD = "data_files";

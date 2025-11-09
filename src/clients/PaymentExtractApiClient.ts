@@ -3,7 +3,7 @@ import FileUploadUtils from "../utils/FileUploadUtils";
 
 export default class PaymentExtractApiClient extends BaseApiClient {
     // API endpoint for payment extract uploads
-    private static readonly UPLOAD_ENDPOINT = "/payment-extract/process/";
+    private static readonly UPLOAD_ENDPOINT = "/payment-extract/process";
     
     // Field name for form data
     private static readonly EXCEL_FILE_FIELD = "excel_file";
