@@ -7,6 +7,7 @@ const testMenuItems = [
     { href: "/inventory", title: "Inventory" },
     { href: "/aging-report", title: "Aging Report" },
     { href: "/payment-extract", title: "Payment Extract" },
+    { href: "/bank-statement", title: "Bank Statement" },
 ];
 
 const Layout = () => {
