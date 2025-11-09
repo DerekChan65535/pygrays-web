@@ -1,0 +1,45 @@
+.payment-extract-container {
+  padding: 2rem 0;
+  
+  .error-heading {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .error-details {
+    margin-top: 0.5rem;
+    
+    ul {
+      margin-bottom: 0;
+      padding-left: 1.5rem;
+      
+      li {
+        margin-bottom: 0.25rem;
+      }
+    }
+  }
+  
+  .selected-files {
+    background-color: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    
+    p {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    
+    .file-list {
+      list-style: none;
+      padding-left: 0;
+      margin-bottom: 0;
+      
+      li {
+        padding: 0.25rem 0;
+        color: #495057;
+      }
+    }
+  }
+}
+

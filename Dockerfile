@@ -17,7 +17,9 @@ COPY package-lock.json ./
 # If you don't commit package-lock.json, you might use 'npm install' instead
 RUN npm ci
 
-# Copy the rest of the application source code
+# Copy the rest of the application source code (including .env.production)
+# .env.local is excluded by .dockerignore, so only .env.production will be copied
+# Create React App will automatically load .env.production when NODE_ENV=production
 COPY . .
 
 # Build the application for production

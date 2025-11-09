@@ -1,0 +1,21 @@
+# Local environment files - should not be included in Docker builds
+.env.local
+.env.development.local
+.env.test.local
+
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Build output
+build
+dist
+
+# IDE
+.idea
+.vscode
+
+# OS
+.DS_Store
+Thumbs.db
+

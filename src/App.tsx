@@ -3,6 +3,7 @@ import Home from "./pages/home/Home";
 import Inventory from "./pages/inventory/Inventory";
 import Layout from "./Layout";
 import AgingReport from "./pages/aging-report/AgingReport";
+import PaymentExtract from "./pages/payment-extract/PaymentExtract";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="inventory" element={<Inventory />} />
               <Route path={"aging-report"} element={<AgingReport/>}/>
+            <Route path="payment-extract" element={<PaymentExtract/>}/>
           </Route>
         </Routes>
       </Router>
