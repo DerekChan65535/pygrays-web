@@ -6,7 +6,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 export default class BaseApiClient {
     /**
      * Dynamically calculates the base URL based on the current page URL
-     * Returns the hostname from the current URL with port 8000
+     * Returns the base URL with /api prefix for nginx reverse proxy
      */
     protected static getBaseUrl(): string {
         // Use environment variable if available (for development)
@@ -14,18 +14,20 @@ export default class BaseApiClient {
             return process.env.REACT_APP_API_URL;
         }
         
-        // In browser environment
+        // In browser environment - use /api prefix for nginx reverse proxy
         if (typeof window !== 'undefined') {
             const location = window.location;
             const protocol = location.protocol;
             const hostname = location.hostname;
+            const port = location.port;
             
-            // Always use port 8000 for the API
-            return `${protocol}//${hostname}:8000`;
+            // Build base URL with port if present, then add /api prefix
+            const baseUrl = port ? `${protocol}//${hostname}:${port}` : `${protocol}//${hostname}`;
+            return `${baseUrl}/api`;
         }
         
         // Fallback to localhost if not in browser
-        return "http://127.0.0.1:8000";
+        return "http://127.0.0.1/api";
     }
     
     /**
