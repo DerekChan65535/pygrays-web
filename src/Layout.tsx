@@ -69,7 +69,7 @@ const Layout = () => {
                                         `nav-link ${isActive ? 'active' : ''}`
                                     }
                                     onClick={() => {
-                                        if (window.innerWidth < 768) {
+                                        if (window.innerWidth < 992) {
                                             closeSidebar();
                                         }
                                     }}
