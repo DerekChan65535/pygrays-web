@@ -5,7 +5,6 @@ import {
     CSidebarBrand,
     CSidebarHeader,
     CSidebarNav,
-    CSidebarToggler,
     CNavItem,
     CNavTitle,
     CContainer,
@@ -37,17 +36,22 @@ const menuItems: MenuItem[] = [
 const Layout = () => {
     // On desktop (≥992px), sidebar is visible by default; on mobile it's hidden
     const [sidebarVisible, setSidebarVisible] = useState(typeof window !== 'undefined' ? window.innerWidth >= 992 : true);
-    const [sidebarUnfoldable, setSidebarUnfoldable] = useState(false);
+    // Automatically show narrow sidebar when window width is between 992px and 1200px
+    const [sidebarNarrow, setSidebarNarrow] = useState(typeof window !== 'undefined' ? window.innerWidth >= 992 && window.innerWidth < 1200 : false);
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Handle window resize to manage sidebar visibility
+    // Handle window resize to manage sidebar visibility and narrow state
     useEffect(() => {
         const handleResize = () => {
-            if (window.innerWidth >= 992) {
+            const width = window.innerWidth;
+            if (width >= 992) {
                 setSidebarVisible(true);
+                // Show narrow (icon-only) sidebar when width is less than 1200px
+                setSidebarNarrow(width < 1200);
             } else {
                 setSidebarVisible(false);
+                setSidebarNarrow(false);
             }
         };
 
@@ -69,18 +73,16 @@ const Layout = () => {
                 className="border-end"
                 colorScheme="light"
                 position="fixed"
-                unfoldable={sidebarUnfoldable}
+                narrow={sidebarNarrow}
+                unfoldable={sidebarNarrow}
                 visible={sidebarVisible}
                 onVisibleChange={(visible: boolean) => {
                     setSidebarVisible(visible);
                 }}
             >
                 <CSidebarHeader className="border-bottom">
-                    <CSidebarBrand className="d-none d-md-flex">
-                        PyGrays
-                    </CSidebarBrand>
-                    <CSidebarBrand className="d-md-none">
-                        PG
+                    <CSidebarBrand>
+                        {sidebarNarrow ? 'PG' : 'PyGrays'}
                     </CSidebarBrand>
                 </CSidebarHeader>
 
@@ -101,12 +103,6 @@ const Layout = () => {
                         </CNavItem>
                     ))}
                 </CSidebarNav>
-
-                <CSidebarHeader className="border-top d-none d-lg-flex">
-                    <CSidebarToggler
-                        onClick={() => setSidebarUnfoldable(!sidebarUnfoldable)}
-                    />
-                </CSidebarHeader>
             </CSidebar>
 
             <div className="wrapper d-flex flex-column min-vh-100">
