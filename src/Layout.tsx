@@ -1,91 +1,138 @@
-import { NavLink, Outlet } from "react-router-dom";
-import { useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import {
+    CSidebar,
+    CSidebarBrand,
+    CSidebarHeader,
+    CSidebarNav,
+    CSidebarToggler,
+    CNavItem,
+    CNavTitle,
+    CContainer,
+} from '@coreui/react-pro';
+import CIcon from '@coreui/icons-react';
+import {
+    cilHome,
+    cilList,
+    cilDescription,
+    cilCreditCard,
+    cilBank,
+} from '@coreui/icons';
 import './Layout.scss';
 
-const testMenuItems = [
-    { href: "/", title: "Home" },
-    { href: "/inventory", title: "Inventory" },
-    { href: "/aging-report", title: "Aging Report" },
-    { href: "/payment-extract", title: "Payment Extract" },
-    { href: "/bank-statement", title: "Bank Statement" },
+interface MenuItem {
+    href: string;
+    title: string;
+    icon: string[];
+}
+
+const menuItems: MenuItem[] = [
+    { href: "/", title: "Home", icon: cilHome },
+    { href: "/inventory", title: "Inventory", icon: cilList },
+    { href: "/aging-report", title: "Aging Report", icon: cilDescription },
+    { href: "/payment-extract", title: "Payment Extract", icon: cilCreditCard },
+    { href: "/bank-statement", title: "Bank Statement", icon: cilBank },
 ];
 
 const Layout = () => {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    
-    const toggleSidebar = () => {
-        setSidebarOpen(!sidebarOpen);
+    // On desktop (≥992px), sidebar is visible by default; on mobile it's hidden
+    const [sidebarVisible, setSidebarVisible] = useState(typeof window !== 'undefined' ? window.innerWidth >= 992 : true);
+    const [sidebarUnfoldable, setSidebarUnfoldable] = useState(false);
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    // Handle window resize to manage sidebar visibility
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 992) {
+                setSidebarVisible(true);
+            } else {
+                setSidebarVisible(false);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const handleNavClick = (href: string) => {
+        navigate(href);
+        // Close sidebar on mobile after navigation
+        if (window.innerWidth < 992) {
+            setSidebarVisible(false);
+        }
     };
-    
-    const closeSidebar = () => {
-        setSidebarOpen(false);
-    };
-    
+
     return (
-        <div className="layout">
-            <button 
-                className="hamburger-button" 
-                onClick={toggleSidebar}
-                aria-label={sidebarOpen ? "Close menu" : "Open menu"}
+        <div className="layout-wrapper">
+            <CSidebar
+                className="border-end"
+                colorScheme="light"
+                position="fixed"
+                unfoldable={sidebarUnfoldable}
+                visible={sidebarVisible}
+                onVisibleChange={(visible: boolean) => {
+                    setSidebarVisible(visible);
+                }}
             >
-                <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
-                    stroke="currentColor"
-                >
-                    {sidebarOpen ? (
-                        <path 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            strokeWidth={2} 
-                            d="M6 18L18 6M6 6l12 12" 
-                        />
-                    ) : (
-                        <path 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            strokeWidth={2} 
-                            d="M4 6h16M4 12h16M4 18h16" 
-                        />
-                    )}
-                </svg>
-            </button>
-            
-            <div 
-                className={`overlay ${sidebarOpen ? 'active' : ''}`} 
-                onClick={closeSidebar}
-            ></div>
-            
-            <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-                <div className="sidebar-header">
-                    <h2>PyGrays</h2>
+                <CSidebarHeader className="border-bottom">
+                    <CSidebarBrand className="d-none d-md-flex">
+                        PyGrays
+                    </CSidebarBrand>
+                    <CSidebarBrand className="d-md-none">
+                        PG
+                    </CSidebarBrand>
+                </CSidebarHeader>
+
+                <CSidebarNav>
+                    <CNavTitle>Navigation</CNavTitle>
+                    {menuItems.map(({ href, title, icon }) => (
+                        <CNavItem
+                            key={href}
+                            href="#"
+                            onClick={(e: React.MouseEvent) => {
+                                e.preventDefault();
+                                handleNavClick(href);
+                            }}
+                            className={location.pathname === href ? 'active' : ''}
+                        >
+                            <CIcon customClassName="nav-icon" icon={icon} />
+                            {title}
+                        </CNavItem>
+                    ))}
+                </CSidebarNav>
+
+                <CSidebarHeader className="border-top d-none d-lg-flex">
+                    <CSidebarToggler
+                        onClick={() => setSidebarUnfoldable(!sidebarUnfoldable)}
+                    />
+                </CSidebarHeader>
+            </CSidebar>
+
+            <div className="wrapper d-flex flex-column min-vh-100">
+                <div className="body flex-grow-1">
+                    <CContainer fluid className="px-4 py-4">
+                        <Outlet />
+                    </CContainer>
                 </div>
-                <nav>
-                    <ul>
-                        {testMenuItems.map(({ href, title }) => (
-                            <li key={title}>
-                                <NavLink 
-                                    to={href} 
-                                    className={({ isActive }) => 
-                                        `nav-link ${isActive ? 'active' : ''}`
-                                    }
-                                    onClick={() => {
-                                        if (window.innerWidth < 992) {
-                                            closeSidebar();
-                                        }
-                                    }}
-                                >
-                                    {title}
-                                </NavLink>
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
-            </aside>
-            <main className="main">
-                <Outlet />
-            </main>
+            </div>
+
+            {/* Mobile overlay backdrop */}
+            <div
+                className={`sidebar-backdrop ${sidebarVisible ? 'show' : ''}`}
+                onClick={() => setSidebarVisible(false)}
+            />
+
+            {/* Mobile toggle button */}
+            <button
+                className="sidebar-toggler d-lg-none"
+                onClick={() => setSidebarVisible(!sidebarVisible)}
+                aria-label={sidebarVisible ? "Close menu" : "Open menu"}
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     );
 };
