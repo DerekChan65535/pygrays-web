@@ -1,4 +1,4 @@
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
     CSidebar,
@@ -8,6 +8,9 @@ import {
     CNavItem,
     CNavTitle,
     CContainer,
+    CSidebarToggler,
+    CSidebarFooter,
+    CCloseButton,
 } from '@coreui/react-pro';
 import CIcon from '@coreui/icons-react';
 import {
@@ -33,102 +36,91 @@ const menuItems: MenuItem[] = [
     { href: "/bank-statement", title: "Bank Statement", icon: cilBank },
 ];
 
-const Layout = () => {
-    // On desktop (≥992px), sidebar is visible by default; on mobile it's hidden
-    const [sidebarVisible, setSidebarVisible] = useState(typeof window !== 'undefined' ? window.innerWidth >= 992 : true);
-    // Automatically show narrow sidebar when window width is between 992px and 1200px
-    const [sidebarNarrow, setSidebarNarrow] = useState(typeof window !== 'undefined' ? window.innerWidth >= 992 && window.innerWidth < 1200 : false);
-    const location = useLocation();
-    const navigate = useNavigate();
+const getIsDesktop = () => (typeof window !== 'undefined' ? window.innerWidth >= 992 : true);
 
-    // Handle window resize to manage sidebar visibility and narrow state
+const Layout = () => {
+    const [isDesktop, setIsDesktop] = useState(getIsDesktop);
+    const [sidebarVisible, setSidebarVisible] = useState(getIsDesktop);
+    const [sidebarUnfoldable, setSidebarUnfoldable] = useState(false);
+
     useEffect(() => {
         const handleResize = () => {
-            const width = window.innerWidth;
-            if (width >= 992) {
-                setSidebarVisible(true);
-                // Show narrow (icon-only) sidebar when width is less than 1200px
-                setSidebarNarrow(width < 1200);
-            } else {
-                setSidebarVisible(false);
-                setSidebarNarrow(false);
-            }
+            const desktop = getIsDesktop();
+            setIsDesktop(desktop);
+            setSidebarVisible(desktop);
         };
 
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const handleNavClick = (href: string) => {
-        navigate(href);
-        // Close sidebar on mobile after navigation
-        if (window.innerWidth < 992) {
+    const closeSidebarOnMobile = () => {
+        if (!isDesktop) {
             setSidebarVisible(false);
         }
     };
 
     return (
-        <div className="layout-wrapper">
+        <div className="layout d-flex">
             <CSidebar
                 className="border-end"
                 colorScheme="light"
                 position="fixed"
-                narrow={sidebarNarrow}
-                unfoldable={sidebarNarrow}
                 visible={sidebarVisible}
-                onVisibleChange={(visible: boolean) => {
-                    setSidebarVisible(visible);
-                }}
+                unfoldable={sidebarUnfoldable}
+                onVisibleChange={(visible: boolean) => setSidebarVisible(visible)}
             >
                 <CSidebarHeader className="border-bottom">
-                    <CSidebarBrand>
-                        {sidebarNarrow ? 'PG' : 'PyGrays'}
+                    <CSidebarBrand className="fw-semibold">
+                        <NavLink to="/" className="sidebar-brand__link">
+                            PyGrays
+                        </NavLink>
                     </CSidebarBrand>
+                    <CCloseButton className="d-lg-none" onClick={() => setSidebarVisible(false)} />
                 </CSidebarHeader>
 
                 <CSidebarNav>
                     <CNavTitle>Navigation</CNavTitle>
                     {menuItems.map(({ href, title, icon }) => (
-                        <CNavItem
-                            key={href}
-                            href="#"
-                            onClick={(e: React.MouseEvent) => {
-                                e.preventDefault();
-                                handleNavClick(href);
-                            }}
-                            className={location.pathname === href ? 'active' : ''}
-                        >
-                            <CIcon customClassName="nav-icon" icon={icon} />
-                            {title}
+                        <CNavItem key={href}>
+                            <NavLink
+                                to={href}
+                                end={href === '/'}
+                                className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                                onClick={closeSidebarOnMobile}
+                            >
+                                <CIcon customClassName="nav-icon" icon={icon} />
+                                {title}
+                            </NavLink>
                         </CNavItem>
                     ))}
                 </CSidebarNav>
+
+                <CSidebarFooter className="border-top d-none d-lg-flex">
+                    <CSidebarToggler onClick={() => setSidebarUnfoldable((value) => !value)} />
+                </CSidebarFooter>
             </CSidebar>
 
-            <div className="wrapper d-flex flex-column min-vh-100">
-                <div className="body flex-grow-1">
-                    <CContainer fluid className="px-4 py-4">
+            <div className={`layout-main d-flex flex-column flex-grow-1 min-vh-100 ${sidebarUnfoldable ? 'layout-main--narrow' : ''}`}>
+                <header className="layout-header d-lg-none">
+                    <button
+                        type="button"
+                        className="layout-header__toggler"
+                        onClick={() => setSidebarVisible(true)}
+                        aria-label="Open navigation"
+                    >
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </header>
+
+                <main className="layout-content flex-grow-1">
+                    <CContainer fluid className="py-4">
                         <Outlet />
                     </CContainer>
-                </div>
+                </main>
             </div>
-
-            {/* Mobile overlay backdrop */}
-            <div
-                className={`sidebar-backdrop ${sidebarVisible ? 'show' : ''}`}
-                onClick={() => setSidebarVisible(false)}
-            />
-
-            {/* Mobile toggle button */}
-            <button
-                className="sidebar-toggler d-lg-none"
-                onClick={() => setSidebarVisible(!sidebarVisible)}
-                aria-label={sidebarVisible ? "Close menu" : "Open menu"}
-            >
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
         </div>
     );
 };
