@@ -1,5 +1,4 @@
 import BaseApiClient from "../utils/BaseApiClient";
-import FileUploadUtils from "../utils/FileUploadUtils";
 
 export default class PaymentExtractApiClient extends BaseApiClient {
     // API endpoint for payment extract uploads
