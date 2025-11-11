@@ -25,10 +25,11 @@ function PaymentExtract(props: PaymentExtractProps): React.JSX.Element {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
+      const fileName = file.name.toLowerCase();
       
-      // Validate file extension
-      if (!file.name.toLowerCase().endsWith('.xlsx')) {
-        setError("Please select an Excel file (.xlsx)");
+      // Validate file extension - accept both .xls and .xlsx
+      if (!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls')) {
+        setError("Please select an Excel file (.xls or .xlsx)");
         setExcelFile(null);
         return;
       }
@@ -46,7 +47,7 @@ function PaymentExtract(props: PaymentExtractProps): React.JSX.Element {
     setSuccessMessage(null);
     
     if (!excelFile) {
-      setError("Please select an Excel file");
+      setError("Please select an Excel file (.xls or .xlsx)");
       return;
     }
     
@@ -111,11 +112,11 @@ function PaymentExtract(props: PaymentExtractProps): React.JSX.Element {
                 <CForm onSubmit={handleSubmit}>
                   <CRow className="mb-3">
                     <CCol md={12}>
-                      <CFormLabel htmlFor="excelFileInput">Excel File (.xlsx)</CFormLabel>
+                      <CFormLabel htmlFor="excelFileInput">Excel File (.xls or .xlsx)</CFormLabel>
                       <CFormInput
                         type="file"
                         id="excelFileInput"
-                        accept=".xlsx"
+                        accept=".xls,.xlsx"
                         onChange={handleFileChange}
                       />
                       {excelFile && (
@@ -128,7 +129,7 @@ function PaymentExtract(props: PaymentExtractProps): React.JSX.Element {
                       )}
                       <div className="mt-2">
                         <small className="text-muted">
-                          The file must contain a sheet named "Payments Extract" with a "BusinessEntity" column.
+                          Accepted formats: .xls and .xlsx. The file must contain a sheet named "Payments Extract" with a "BusinessEntity" column.
                         </small>
                       </div>
                     </CCol>
@@ -155,5 +156,6 @@ function PaymentExtract(props: PaymentExtractProps): React.JSX.Element {
 }
 
 export default PaymentExtract;
+
 
 
